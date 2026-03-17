@@ -427,7 +427,7 @@ except Exception as e:
     st.stop()
 
 actual_results = load_actual_results(ACTUAL_RESULTS_FILE)
-submissions_df = load_submissions(SUBMISSIONS_FILE)
+submissions_df = load_submissions()
 
 
 # =========================

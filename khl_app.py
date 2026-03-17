@@ -541,7 +541,7 @@ if save_clicked:
             "champion": champion["team"],
         }
 
-        save_submission(submission, SUBMISSIONS_FILE)
+        save_submission(submission
 
         if already_exists:
             st.success("Старый брекет для этого имени заменён новым.")

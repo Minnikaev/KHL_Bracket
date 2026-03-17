@@ -150,17 +150,15 @@ def validate_teams(teams):
         raise ValueError("У Востока seeds должны быть от 1 до 8 без пропусков.")
 
 
-def load_submissions(file_path=SUBMISSIONS_FILE):
-    if not os.path.exists(file_path):
+def load_submissions():
+    sheet = get_gsheet()
+    data = sheet.get_all_records()
+
+    if not data:
         return pd.DataFrame()
 
-    df = pd.read_csv(file_path)
-
-    if df.empty:
-        return df
-
-    if "timestamp" in df.columns:
-        df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+    df = pd.DataFrame(data)
+    df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
 
     return df
 
@@ -269,31 +267,30 @@ def participant_exists(participant_name, file_path=SUBMISSIONS_FILE):
     return normalized_input in set(normalized_names)
 
 
-def save_submission(submission, file_path=SUBMISSIONS_FILE):
-    fieldnames = ["timestamp", "participant_name"] + ALL_RESULT_FIELDS
-    new_name = str(submission["participant_name"]).strip().lower()
+def save_submission(submission):
+    sheet = get_gsheet()
 
-    if os.path.exists(file_path):
-        existing_df = pd.read_csv(file_path)
+    values = [
+        submission["timestamp"],
+        submission["participant_name"],
+        submission["r1_west_1"],
+        submission["r1_west_2"],
+        submission["r1_west_3"],
+        submission["r1_west_4"],
+        submission["r1_east_1"],
+        submission["r1_east_2"],
+        submission["r1_east_3"],
+        submission["r1_east_4"],
+        submission["qf_1"],
+        submission["qf_2"],
+        submission["qf_3"],
+        submission["qf_4"],
+        submission["sf_1"],
+        submission["sf_2"],
+        submission["champion"],
+    ]
 
-        if not existing_df.empty and "participant_name" in existing_df.columns:
-            existing_df["participant_name_normalized"] = (
-                existing_df["participant_name"]
-                .astype(str)
-                .str.strip()
-                .str.lower()
-            )
-
-            existing_df = existing_df[
-                existing_df["participant_name_normalized"] != new_name
-            ].drop(columns=["participant_name_normalized"])
-    else:
-        existing_df = pd.DataFrame(columns=fieldnames)
-
-    new_row_df = pd.DataFrame([submission])
-    updated_df = pd.concat([existing_df, new_row_df], ignore_index=True)
-    updated_df = updated_df[fieldnames]
-    updated_df.to_csv(file_path, index=False, encoding="utf-8")
+    sheet.append_row(values)
 
 
 def non_empty_values(row_dict, fields):

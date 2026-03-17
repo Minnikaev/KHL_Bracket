@@ -4,6 +4,24 @@ from datetime import datetime
 
 import pandas as pd
 import streamlit as st
+import json
+import gspread
+from google.oauth2.service_account import Credentials
+
+def get_gsheet():
+    service_account_info = json.loads(st.secrets["gcp_service_account"]["json"])
+
+    creds = Credentials.from_service_account_info(
+        service_account_info,
+        scopes=[
+            "https://www.googleapis.com/auth/spreadsheets",
+            "https://www.googleapis.com/auth/drive"
+        ]
+    )
+
+    client = gspread.authorize(creds)
+    sheet = client.open("KHL Bracket Submissions").sheet1
+    return sheet
 
 
 # =========================

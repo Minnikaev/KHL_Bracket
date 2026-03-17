@@ -9,7 +9,7 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 def get_gsheet():
-    service_account_info = json.loads(st.secrets["gcp_service_account"]["json"])
+    service_account_info = dict(st.secrets["gcp_service_account"])
 
     creds = Credentials.from_service_account_info(
         service_account_info,
@@ -20,8 +20,8 @@ def get_gsheet():
     )
 
     client = gspread.authorize(creds)
-    sheet = client.open("KHL Bracket Submissions").sheet1
-    return sheet
+    spreadsheet = client.open("KHL Bracket Submissions")
+    return spreadsheet.sheet1
 
 
 # =========================

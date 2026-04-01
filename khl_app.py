@@ -438,10 +438,6 @@ except Exception as e:
 actual_results = load_actual_results(ACTUAL_RESULTS_FILE)
 submissions_df = load_submissions()
 
-st.write("actual:", repr(actual_results.get("r1_west_1", "")))
-
-if not submissions_df.empty:
-    st.write("predicted:", repr(submissions_df.iloc[0].get("r1_west_1", "")))
 
 
 # =========================

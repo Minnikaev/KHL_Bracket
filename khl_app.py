@@ -114,6 +114,20 @@ st.markdown(
 # =========================
 # DATA LOADING
 # =========================
+
+
+def normalize_value(value):
+    if pd.isna(value):
+        return ""
+
+    value = str(value)
+    value = value.replace("\ufeff", "")   # BOM
+    value = value.replace("\xa0", " ")    # неразрывный пробел
+    value = value.strip()
+    value = " ".join(value.split())       # убирает двойные пробелы
+
+    return value
+    
 def load_teams_from_csv(file_path=TEAMS_FILE):
     teams = []
 
@@ -177,9 +191,7 @@ def load_actual_results(file_path=ACTUAL_RESULTS_FILE):
     cleaned = {}
     for field in ALL_RESULT_FIELDS:
         value = row.get(field, "")
-        if pd.isna(value):
-            value = ""
-        cleaned[field] = str(value).strip()
+        cleaned[field] = normalize_value(value)
 
     return cleaned
 
@@ -297,10 +309,7 @@ def non_empty_values(row_dict, fields):
     values = set()
 
     for field in fields:
-        value = row_dict.get(field, "")
-        if pd.isna(value):
-            value = ""
-        value = str(value).strip()
+        value = normalize_value(row_dict.get(field, ""))
         if value:
             values.add(value)
 
@@ -322,8 +331,8 @@ def calculate_score(submission_row, actual_results):
     actual_sf = non_empty_values(actual_results, SF_FIELDS)
     score += len(predicted_sf & actual_sf) * 4
 
-    predicted_champion = str(submission_row.get("champion", "")).strip()
-    actual_champion = str(actual_results.get("champion", "")).strip()
+    predicted_champion = normalize_value(submission_row.get("champion", ""))
+    actual_champion = normalize_value(actual_results.get("champion", ""))
     if actual_champion and predicted_champion == actual_champion:
         score += 8
 
